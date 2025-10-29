@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Old Age Pension Form</title>
+<style>
+  body {
+    font-family: "Poppins", Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #fff);
+    padding: 0;
+    margin: 0;
+  }
+  header {
+    background: linear-gradient(90deg, #0d47a1, #1565c0);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 5px solid #ff9933;
+    position: relative;
+  }
+  header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+  header img {
+    height: 60px;
+  }
+  header h1 {
+    font-size: 26px;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .flag {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    height: 25px;
+  }
+  select {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+  }
+  form, .tracking {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 30px auto;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+  input, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+  input:focus {
+    outline: none;
+    border-color: #1565c0;
+    box-shadow: 0 0 6px rgba(21,101,192,0.3);
+  }
+  button {
+    border: none;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #submitBtn {
+    background: linear-gradient(90deg, #43a047, #66bb6a);
+  }
+  #submitBtn:hover {
+    background: linear-gradient(90deg, #2e7d32, #388e3c);
+  }
+  .tracking button {
+    background: linear-gradient(90deg, #1565c0, #42a5f5);
+  }
+  .tracking button:hover {
+    background: linear-gradient(90deg, #0d47a1, #1e88e5);
+  }
+  .note {
+    text-align: center;
+    color: #0d47a1;
+    font-weight: 500;
+  }
+  .qr {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .qr img {
+    border: 4px solid #1976d2;
+    border-radius: 10px;
+    padding: 5px;
+  }
+  h2, h3 {
+    text-align: center;
+    color: #0d47a1;
+  }
+</style>
+<script>
+  const texts = {
+    en: {
+      title: "Old Age Pension Application Form",
+      gov: "Central Government of India",
+      name: "Name",
+      aadhar: "Aadhaar Number",
+      pan: "PAN Number (Optional)",
+      voter: "Voter Card Number",
+      account: "Bank Account Number",
+      ifsc: "IFSC Code",
+      note: "This payment amount will also be credited to your bank account.",
+      pay: "Scan the QR code below to pay ₹500",
+      utr: "Enter UTR Number",
+      submit: "Submit Application",
+      track: "Track Application",
+      placeholder: "Enter your 20-digit Application Number"
+    },
+    bn: {
+      title: "বার্ধক্য ভাতা আবেদন ফর্ম",
+      gov: "ভারতের কেন্দ্রীয় সরকার",
+      name: "নাম",
+      aadhar: "আধার নম্বর",
+      pan: "প্যান নম্বর (ঐচ্ছিক)",
+      voter: "ভোটার কার্ড নম্বর",
+      account: "ব্যাংক অ্যাকাউন্ট নম্বর",
+      ifsc: "IFSC কোড",
+      note: "এই প্রদান করা টাকা আপনার ব্যাংক অ্যাকাউন্টেও জমা হবে।",
+      pay: "৫০০ টাকা প্রদানের জন্য নিচের QR কোড স্ক্যান করুন",
+      utr: "UTR নম্বর লিখুন",
+      submit: "আবেদন জমা দিন",
+      track: "আবেদন ট্র্যাক করুন",
+      placeholder: "আপনার ২০ ডিজিট আবেদন নম্বর দিন"
+    },
+    hi: {
+      title: "वृद्धावस्था पेंशन आवेदन फॉर्म",
+      gov: "भारत की केंद्रीय सरकार",
+      name: "नाम",
+      aadhar: "आधार नंबर",
+      pan: "पैन नंबर (वैकल्पिक)",
+      voter: "वोटर कार्ड नंबर",
+      account: "बैंक खाता नंबर",
+      ifsc: "IFSC कोड",
+      note: "भुगतान की गई राशि आपके बैंक खाते में भी जमा होगी।",
+      pay: "₹500 भुगतान करने के लिए नीचे दिया गया QR कोड स्कैन करें",
+      utr: "UTR नंबर दर्ज करें",
+      submit: "आवेदन सबमिट करें",
+      track: "आवेदन ट्रैक करें",
+      placeholder: "अपना 20 अंकों का आवेदन नंबर दर्ज करें"
+    }
+  };
+
+  function changeLanguage(lang) {
+    const t = texts[lang];
+    document.getElementById("title").textContent = t.title;
+    document.getElementById("gov").textContent = t.gov;
+    document.getElementById("labelName").textContent = t.name + ":";
+    document.getElementById("labelAadhar").textContent = t.aadhar + ":";
+    document.getElementById("labelPan").textContent = t.pan + ":";
+    document.getElementById("labelVoter").textContent = t.voter + ":";
+    document.getElementById("labelAccount").textContent = t.account + ":";
+    document.getElementById("labelIfsc").textContent = t.ifsc + ":";
+    document.getElementById("note").textContent = t.note;
+    document.getElementById("payText").textContent = t.pay;
+    document.getElementById("labelUtr").textContent = t.utr + ":";
+    document.getElementById("submitBtn").textContent = t.submit;
+    document.getElementById("trackTitle").textContent = t.track;
+    document.getElementById("trackNum").placeholder = t.placeholder;
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    document.getElementById("applicationResult").innerHTML =
+      "Thank you! Your application has been successfully submitted.";
+  }
+
+  function handleTrack() {
+    const trackNum = document.getElementById("trackNum").value.trim();
+    if (trackNum.length === 20) {
+      alert("Your application " + trackNum + " is under process.");
+    } else {
+      alert("Please enter a valid 20-digit Application Number.");
+    }
+  }
+</script>
+</head>
+<body onload="changeLanguage('bn')">
+
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Emblem_of_India.svg" alt="Ashoka Emblem" class="flag-left logo-img" style="position:absolute; left:25px; top:15px; height:65px;">
+  <div class="logo">
+    <h1 id="gov">ভারতের কেন্দ্রীয় সরকার</h1>
+  </div>
+  <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" alt="Indian Flag" class="flag">
+  <select onchange="changeLanguage(this.value)">
+    <option value="bn">বাংলা</option>
+    <option value="hi">हिन्दी</option>
+    <option value="en">English</option>
+  </select>
+</header>
+
+<h2 id="title">বার্ধক্য ভাতা আবেদন ফর্ম</h2>
+
+<form onsubmit="handleSubmit(event)">
+  <label id="labelName">নাম:</label>
+  <input type="text" name="name" required />
+
+  <label id="labelAadhar">আধার নম্বর:</label>
+  <input type="text" name="aadhar" required />
+
+  <label id="labelPan">প্যান নম্বর (ঐচ্ছিক):</label>
+  <input type="text" name="pan" />
+
+  <label id="labelVoter">ভোটার কার্ড নম্বর:</label>
+  <input type="text" name="voter" required />
+
+  <label id="labelAccount">ব্যাংক অ্যাকাউন্ট নম্বর:</label>
+  <input type="text" name="account" required />
+
+  <label id="labelIfsc">IFSC কোড:</label>
+  <input type="text" name="ifsc" required />
+
+  <div class="note" id="note"></div>
+
+  <div class="qr">
+    <p id="payText"></p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=IND_Govt_OldAgePension@upi&pn=India%20Govt%20Pension%20Dept&aid=uGICAgIDD2_iQEA" alt="QR Payment" />
+  </div>
+
+  <label id="labelUtr">UTR নম্বর:</label>
+  <input type="text" name="utr" required />
+
+  <button type="submit" id="submitBtn">আবেদন জমা দিন</button>
+</form>
+
+<div id="applicationResult" class="note"></div>
+
+<div class="tracking">
+  <h3 id="trackTitle">আবেদন ট্র্যাক করুন</h3>
+  <input type="text" id="trackNum" placeholder="আপনার ২০ ডিজিট আবেদন নম্বর দিন" />
+  <button onclick="handleTrack()">Track</button>
+</div>
+
+</body>
+</html>
